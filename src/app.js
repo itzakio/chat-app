@@ -10,6 +10,7 @@ dotenv.config();
 connectDB();
 
 const authRoutes = require('./routes/authRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 const errorMiddleware = require('./middleware/errorMiddleware');
 
 const app = express();
@@ -21,13 +22,14 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/chat', chatRoutes); // NEW
 
 // Home route
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'JWT Auth API with MongoDB Atlas is running',
-    version: '1.0.0'
+    message: 'JWT Auth & Chat API with MongoDB Atlas is running',
+    version: '2.0.0'
   });
 });
 

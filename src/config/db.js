@@ -5,18 +5,11 @@ let client = null;
 
 const connectDB = async () => {
   try {
-    // Create MongoDB client for Atlas
     client = new MongoClient(process.env.MONGODB_URI);
-    
-    // Connect to MongoDB Atlas
     await client.connect();
-    
-    // Get database instance
     db = client.db();
     
     console.log(`✅ MongoDB Atlas Connected to: ${db.databaseName}`);
-    
-    // Create indexes for better performance
     await createIndexes();
     
     return db;
@@ -31,16 +24,25 @@ const connectDB = async () => {
   }
 };
 
-// Create indexes for better query performance
 const createIndexes = async () => {
   try {
     const usersCollection = db.collection('users');
+    const messagesCollection = db.collection('messages');
+    const conversationsCollection = db.collection('conversations');
     
-    // Create unique index on email (prevents duplicate emails)
+    // User indexes
     await usersCollection.createIndex({ email: 1 }, { unique: true });
-    
-    // Create index on createdAt for faster sorting
     await usersCollection.createIndex({ createdAt: -1 });
+    
+    // Message indexes
+    await messagesCollection.createIndex({ conversationId: 1 });
+    await messagesCollection.createIndex({ createdAt: -1 });
+    await messagesCollection.createIndex({ conversationId: 1, createdAt: -1 });
+    
+    // Conversation indexes
+    await conversationsCollection.createIndex({ participants: 1 });
+    await conversationsCollection.createIndex({ 'participants.userId': 1 });
+    await conversationsCollection.createIndex({ lastMessageAt: -1 });
     
     console.log('✅ Database indexes created');
   } catch (error) {
@@ -48,7 +50,6 @@ const createIndexes = async () => {
   }
 };
 
-// Get database instance
 const getDB = () => {
   if (!db) {
     throw new Error('Database not connected. Call connectDB first.');
@@ -56,17 +57,11 @@ const getDB = () => {
   return db;
 };
 
-// Get users collection
-const getUsersCollection = () => {
-  return getDB().collection('users');
-};
+const getUsersCollection = () => getDB().collection('users');
+const getTokensCollection = () => getDB().collection('tokens');
+const getMessagesCollection = () => getDB().collection('messages');
+const getConversationsCollection = () => getDB().collection('conversations');
 
-// Get tokens collection
-const getTokensCollection = () => {
-  return getDB().collection('tokens');
-};
-
-// Close database connection
 const closeDB = async () => {
   if (client) {
     await client.close();
@@ -79,5 +74,7 @@ module.exports = {
   getDB, 
   getUsersCollection, 
   getTokensCollection,
+  getMessagesCollection,
+  getConversationsCollection,
   closeDB 
 };

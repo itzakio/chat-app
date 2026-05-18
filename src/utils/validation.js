@@ -14,4 +14,14 @@ const validateName = (name) => {
   return name && name.length >= 2 && name.length <= 50;
 };
 
-module.exports = { validateEmail, validatePassword, validateName };
+// Message validation
+const validateMessage = (message) => {
+  return message && message.trim().length > 0 && message.trim().length <= 2000;
+};
+
+module.exports = { 
+  validateEmail, 
+  validatePassword, 
+  validateName,
+  validateMessage 
+};
